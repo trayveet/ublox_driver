@@ -143,10 +143,16 @@ void SerialHandler::read_handler(const boost::system::error_code& error, std::si
         // start another read session
         startRead();
     }
-    else if (error == boost::asio::error::operation_aborted || error != boost::asio::error::bad_descriptor)
+    else if (error == boost::asio::error::operation_aborted)
     {
-        // std::cerr << error.message() << '\n';
+         std::cerr << error.message() << '\n';
         std::cerr << "Serial " << port_ <<  " read handler aborted due to serial shutdown.\n";
+        return;
+    }
+    else if (error != boost::asio::error::bad_descriptor)
+    {
+        std::cerr << error.message() << '\n';
+        std::cerr << "Serial " << port_ <<  " read handler aborted due to bad descriptor.\n";
         return;
     }
     else

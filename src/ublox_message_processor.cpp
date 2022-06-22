@@ -818,7 +818,7 @@ int UbloxMessageProcessor::decode_GAL_subframe(const uint8_t *msg_data, const ui
     uint8_t buff[32],crc_buff[26]={0};
     int i,j,k,part1,page1,part2,page2,type;
     
-    if (msg_len < 52)      // header(6) + payload_1(8) + payload_2(36) + checksum(2)
+    if (msg_len < 48)      // header(6) + payload_1(8) + payload_2(36) + checksum(2) // Nabil Change from 52 to 48 
     {
         LOG(ERROR) << "ubx rxmsfrbx length error: sat=" << sat2str(ephem->sat) << " len=" << msg_len;
         return -1;
