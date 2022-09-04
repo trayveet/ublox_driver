@@ -127,6 +127,17 @@ void UbloxMessageProcessor::process_data(const uint8_t *data, size_t len)
         lla_msg.altitude    = pvt_soln->hgt;
         lla_msg.status.status = static_cast<int8_t>(pvt_soln->fix_type);
         lla_msg.status.service = static_cast<uint16_t>(pvt_soln->carr_soln);
+
+        // Convert from mm to m
+        //const double varH = pow(pvt_soln->h_acc / 1000.0, 2);
+        //const double varV = pow(pvt_soln->v_acc / 1000.0, 2);
+        lla_msg.position_covariance[0] = pvt_soln->h_acc;
+        lla_msg.position_covariance[4] = pvt_soln->h_acc;
+        lla_msg.position_covariance[8] = pvt_soln->v_acc;
+        lla_msg.position_covariance_type =
+            sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+
+
         pub_lla_.publish(lla_msg);
         return;
     }
