@@ -40,6 +40,7 @@ UbloxMessageProcessor::UbloxMessageProcessor(ros::NodeHandle& nh) :
 {
     pub_pvt_ = nh_.advertise<GnssPVTSolnMsg>("receiver_pvt", 100);
     pub_lla_ = nh_.advertise<sensor_msgs::NavSatFix>("receiver_lla", 100);
+    pub_delta_time_ = nh_.advertise<sensor_msgs::TimeReference>("delta_time", 100);
     pub_tp_info_ = nh_.advertise<GnssTimePulseInfoMsg>("time_pulse_info", 100);
     pub_range_meas_ = nh_.advertise<GnssMeasMsg>("range_meas", 100);
     pub_ephem_ = nh_.advertise<GnssEphemMsg>("ephem", 100);
@@ -128,17 +129,22 @@ void UbloxMessageProcessor::process_data(const uint8_t *data, size_t len)
         lla_msg.status.status = static_cast<int8_t>(pvt_soln->fix_type);
         lla_msg.status.service = static_cast<uint16_t>(pvt_soln->carr_soln);
 
-        // Convert from mm to m
-        //const double varH = pow(pvt_soln->h_acc / 1000.0, 2);
-        //const double varV = pow(pvt_soln->v_acc / 1000.0, 2);
         lla_msg.position_covariance[0] = pvt_soln->h_acc;
         lla_msg.position_covariance[4] = pvt_soln->h_acc;
         lla_msg.position_covariance[8] = pvt_soln->v_acc;
         lla_msg.position_covariance_type =
             sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
+        sensor_msgs::TimeReference pub_delta_time;
+        double secs = ros::Time::now().toSec();
+        pub_delta_time.header.stamp = ros::Time::now();
+        pub_delta_time.time_ref = ros::Time(lla_msg.header.stamp.toSec() - secs);
+        pub_delta_time.source = "gps to system time delta";
 
+        
+        //LOG(INFO) << "gps time in sec " << lla_msg.header.stamp.toSec() - secs;
         pub_lla_.publish(lla_msg);
+        pub_delta_time_.publish(pub_delta_time);
         return;
     }
     // unsupported message reach here

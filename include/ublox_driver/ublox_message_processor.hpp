@@ -24,6 +24,7 @@
 #include <map>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/TimeReference.h>
 #include <glog/logging.h>
 #include <gnss_comm/gnss_constant.hpp>
 #include <gnss_comm/gnss_utility.hpp>
@@ -121,7 +122,7 @@ class UbloxMessageProcessor
         uint8_t subfrm[MAX_SAT][380];     /* subframe buffer */
         gtime_t curr_time;
         ros::NodeHandle nh_;
-        ros::Publisher pub_pvt_, pub_lla_;
+        ros::Publisher pub_pvt_, pub_lla_, pub_delta_time_; //delta_time is the difference between gps and system time
         ros::Publisher pub_tp_info_;
         ros::Publisher pub_range_meas_, pub_ephem_, pub_glo_ephem_, pub_iono_;
         const uint32_t MSG_HEADER_LEN;
